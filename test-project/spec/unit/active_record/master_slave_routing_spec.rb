@@ -94,6 +94,31 @@ describe "ActiveRecord slave-enabled models" do
     end
   end
 
+  describe "in pluck method" do
+    before :each do
+      @mysql_result = [{'col1' => 1}, {'col1' => 2}]
+      @mysql_result.stub(:columns).and_return(['col1'])
+    end
+
+    it "should go to the slave if called on the first level connection" do
+      User.on_slave.connection.should_receive(:exec_query).and_return(@mysql_result)
+      User.pluck(:id)#.should == [1, 2]
+    end
+
+    it "should not change connection if called in an on_db block" do
+      User.on_db(:logs).connection.should_receive(:exec_query).and_return(@mysql_result)
+      User.on_slave.connection.should_not_receive(:exec_query)
+      User.on_db(:logs).pluck(:id).should == [1, 2]
+    end
+
+    it "should not change connection if called in a transaction" do
+      mysql_result = [{'col1' => 1}, {'col1' => 2}]
+      User.on_db(:user_master).connection.should_receive(:exec_query).and_return(@mysql_result)
+      User.on_slave.connection.should_not_receive(:exec_query)
+      User.transaction { User.pluck(:id).should == [1, 2] }
+    end
+  end
+
   describe "in data manipulation methods" do
     it "should go to the master by default" do
       User.on_db(:user_master).connection.should_receive(:delete)
