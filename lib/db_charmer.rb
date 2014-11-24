@@ -22,6 +22,11 @@ module DbCharmer
     rails3? && ::ActiveRecord::VERSION::MINOR >= 1
   end
 
+  # Used in all Rails3.1-specific places
+  def self.rails32?
+    rails3? && ::ActiveRecord::VERSION::MINOR >= 2
+  end
+
   # Used in all Rails2-specific places
   def self.rails2?
     ::ActiveRecord::VERSION::MAJOR == 2
