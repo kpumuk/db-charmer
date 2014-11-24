@@ -1,10 +1,8 @@
-require 'spec_helper'
-
 class FooModel < ActiveRecord::Base; end
 
-describe DbCharmer, "for ActiveRecord models" do
+RSpec.describe DbCharmer, "for ActiveRecord models" do
   context "in db_charmer_connection_proxy methods" do
-    before do
+    before :each do
       FooModel.db_charmer_connection_proxy = nil
       FooModel.db_charmer_default_connection = nil
     end
@@ -12,12 +10,12 @@ describe DbCharmer, "for ActiveRecord models" do
     it "should implement both accessor methods" do
       proxy = double('connection proxy')
       FooModel.db_charmer_connection_proxy = proxy
-      FooModel.db_charmer_connection_proxy.should be(proxy)
+      expect(FooModel.db_charmer_connection_proxy).to be(proxy)
     end
   end
 
   context "in db_charmer_default_connection methods" do
-    before do
+    before :each do
       FooModel.db_charmer_default_connection = nil
       FooModel.db_charmer_default_connection = nil
     end
@@ -25,66 +23,66 @@ describe DbCharmer, "for ActiveRecord models" do
     it "should implement both accessor methods" do
       conn = double('connection')
       FooModel.db_charmer_default_connection = conn
-      FooModel.db_charmer_default_connection.should be(conn)
+      expect(FooModel.db_charmer_default_connection).to be(conn)
     end
   end
 
   context "in db_charmer_opts methods" do
-    before do
+    before :each do
       FooModel.db_charmer_opts = nil
     end
 
     it "should implement both accessor methods" do
-      opts = { :foo => :bar}
+      opts = { foo: :bar}
       FooModel.db_charmer_opts = opts
-      FooModel.db_charmer_opts.should be(opts)
+      expect(FooModel.db_charmer_opts).to be(opts)
     end
   end
 
   context "in db_charmer_slaves methods" do
     it "should return [] if no slaves set for a model" do
       FooModel.db_charmer_slaves = nil
-      FooModel.db_charmer_slaves.should == []
+      expect(FooModel.db_charmer_slaves).to eq([])
     end
 
     it "should implement both accessor methods" do
       proxy = double('connection proxy')
       FooModel.db_charmer_slaves = [ proxy ]
-      FooModel.db_charmer_slaves.should == [ proxy ]
+      expect(FooModel.db_charmer_slaves).to eq([ proxy ])
     end
 
     it "should implement random slave selection" do
       FooModel.db_charmer_slaves = [ :proxy1, :proxy2, :proxy3 ]
       srand(0)
-      FooModel.db_charmer_random_slave.should == :proxy1
-      FooModel.db_charmer_random_slave.should == :proxy2
-      FooModel.db_charmer_random_slave.should == :proxy1
-      FooModel.db_charmer_random_slave.should == :proxy2
-      FooModel.db_charmer_random_slave.should == :proxy2
-      FooModel.db_charmer_random_slave.should == :proxy3
+      expect(FooModel.db_charmer_random_slave).to eq(:proxy1)
+      expect(FooModel.db_charmer_random_slave).to eq(:proxy2)
+      expect(FooModel.db_charmer_random_slave).to eq(:proxy1)
+      expect(FooModel.db_charmer_random_slave).to eq(:proxy2)
+      expect(FooModel.db_charmer_random_slave).to eq(:proxy2)
+      expect(FooModel.db_charmer_random_slave).to eq(:proxy3)
     end
   end
 
   context "in db_charmer_connection_levels methods" do
     it "should return 0 by default" do
       FooModel.db_charmer_connection_level = nil
-      FooModel.db_charmer_connection_level.should == 0
+      expect(FooModel.db_charmer_connection_level).to eq(0)
     end
 
     it "should implement both accessor methods and support inc/dec operations" do
       FooModel.db_charmer_connection_level = 1
-      FooModel.db_charmer_connection_level.should == 1
+      expect(FooModel.db_charmer_connection_level).to eq(1)
       FooModel.db_charmer_connection_level += 1
-      FooModel.db_charmer_connection_level.should == 2
+      expect(FooModel.db_charmer_connection_level).to eq(2)
       FooModel.db_charmer_connection_level -= 1
-      FooModel.db_charmer_connection_level.should == 1
+      expect(FooModel.db_charmer_connection_level).to eq(1)
     end
 
     it "should implement db_charmer_top_level_connection? method" do
       FooModel.db_charmer_connection_level = 1
-      FooModel.should_not be_db_charmer_top_level_connection
+      expect(FooModel).to_not be_db_charmer_top_level_connection
       FooModel.db_charmer_connection_level = 0
-      FooModel.should be_db_charmer_top_level_connection
+      expect(FooModel).to be_db_charmer_top_level_connection
     end
   end
 
@@ -92,25 +90,25 @@ describe DbCharmer, "for ActiveRecord models" do
     it "should return AR's original connection if no connection proxy is set" do
       FooModel.db_charmer_connection_proxy = nil
       FooModel.db_charmer_default_connection = nil
-      FooModel.connection.should be_kind_of(ActiveRecord::ConnectionAdapters::AbstractAdapter)
+      expect(FooModel.connection).to be_kind_of(ActiveRecord::ConnectionAdapters::AbstractAdapter)
     end
   end
 
   context "in db_charmer_force_slave_reads? method" do
     it "should use per-model settings when possible" do
       FooModel.db_charmer_force_slave_reads = true
-      DbCharmer.should_not_receive(:force_slave_reads?)
-      FooModel.db_charmer_force_slave_reads?.should be_true
+      expect(DbCharmer).to_not receive(:force_slave_reads?)
+      expect(FooModel.db_charmer_force_slave_reads?).to be(true)
     end
 
     it "should use global settings when local setting is false" do
       FooModel.db_charmer_force_slave_reads = false
 
-      DbCharmer.should_receive(:force_slave_reads?).and_return(true)
-      FooModel.db_charmer_force_slave_reads?.should be_true
+      expect(DbCharmer).to receive(:force_slave_reads?).and_return(true)
+      expect(FooModel.db_charmer_force_slave_reads?).to be(true)
 
-      DbCharmer.should_receive(:force_slave_reads?).and_return(false)
-      FooModel.db_charmer_force_slave_reads?.should be_false
+      expect(DbCharmer).to receive(:force_slave_reads?).and_return(false)
+      expect(FooModel.db_charmer_force_slave_reads?).to be(false)
     end
   end
 end

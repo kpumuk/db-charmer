@@ -1,7 +1,5 @@
-require 'spec_helper'
-
-describe "DbCharmer#with_remapped_databases" do
-  before(:all) do
+RSpec.describe "DbCharmer#with_remapped_databases" do
+  before :all do
     DbCharmer.connections_should_exist = false
   end
 
@@ -11,17 +9,17 @@ describe "DbCharmer#with_remapped_databases" do
 
   before :each do
     class User < ActiveRecord::Base
-      db_magic :connection => :slave01
+      db_magic connection: :slave01
     end
   end
 
   def should_have_connection(model_class, connection)
-    model_class.connection.object_id.should == connection.object_id
+    expect(model_class.connection.object_id).to eq(connection.object_id)
   end
 
   it "should remap the right connection" do
     should_have_connection(LogRecord, logs_connection)
-    DbCharmer.with_remapped_databases(:logs => :slave01) do
+    DbCharmer.with_remapped_databases(logs: :slave01) do
       should_have_connection(LogRecord, slave_connection)
     end
     should_have_connection(LogRecord, logs_connection)
@@ -30,7 +28,7 @@ describe "DbCharmer#with_remapped_databases" do
   it "should not remap other connections" do
     should_have_connection(Avatar, master_connection)
     should_have_connection(User, slave_connection)
-    DbCharmer.with_remapped_databases(:logs => :slave01) do
+    DbCharmer.with_remapped_databases(logs: :slave01) do
       should_have_connection(Avatar, master_connection)
       should_have_connection(User, slave_connection)
     end
@@ -41,7 +39,7 @@ describe "DbCharmer#with_remapped_databases" do
   it "should allow remapping multiple databases" do
     should_have_connection(Avatar, master_connection)
     should_have_connection(LogRecord, logs_connection)
-    DbCharmer.with_remapped_databases(:master => :logs, :logs => :slave01) do
+    DbCharmer.with_remapped_databases(master: :logs, logs: :slave01) do
       should_have_connection(Avatar, logs_connection)
       should_have_connection(LogRecord, slave_connection)
     end
@@ -53,7 +51,7 @@ describe "DbCharmer#with_remapped_databases" do
     should_have_connection(Avatar, master_connection)
     should_have_connection(User, slave_connection)
     should_have_connection(LogRecord, logs_connection)
-    DbCharmer.with_remapped_databases(:master => :slave01) do
+    DbCharmer.with_remapped_databases(master: :slave01) do
       should_have_connection(Avatar, slave_connection)
       should_have_connection(User, slave_connection)
       should_have_connection(LogRecord, logs_connection)
@@ -64,7 +62,7 @@ describe "DbCharmer#with_remapped_databases" do
   end
 
   it "should not override connections that are explicitly specified" do
-    DbCharmer.with_remapped_databases(:logs => :slave01) do
+    DbCharmer.with_remapped_databases(logs: :slave01) do
       should_have_connection(LogRecord, slave_connection)
       should_have_connection(LogRecord.on_db(:master), master_connection)
       LogRecord.on_db(:master) do
@@ -83,11 +81,11 @@ describe "DbCharmer#with_remapped_databases" do
     LogRecord.all
 
     # Remap LogRecord connection to slave01 and make sure selects would go there (even though we do not have the table there)
-    DbCharmer.with_remapped_databases(:logs => :slave01) do
-      logs_connection.should_not_receive(:select_all)
-      slave_connection.should_receive(:select_all).and_return([])
+    DbCharmer.with_remapped_databases(logs: :slave01) do
+      expect(logs_connection).to_not receive(:select_all)
+      expect(slave_connection).to receive(:select_all).and_return([])
       stub_columns_for_rails31 slave_connection
-      LogRecord.all.should be_empty
+      expect(LogRecord.all).to be_empty
     end
   end
 
@@ -112,14 +110,14 @@ describe "DbCharmer#with_remapped_databases" do
   it "should hijack connections only when necessary" do
     unhijack!(Category)
 
-    Category.respond_to?(:connection_with_magic).should be_false
-    DbCharmer.with_remapped_databases(:logs => :slave01) do
-      Category.respond_to?(:connection_with_magic).should be_false
+    expect(Category.respond_to?(:connection_with_magic)).to be(false)
+    DbCharmer.with_remapped_databases(logs: :slave01) do
+      expect(Category.respond_to?(:connection_with_magic)).to be(false)
     end
-    Category.respond_to?(:connection_with_magic).should be_false
+    expect(Category.respond_to?(:connection_with_magic)).to be(false)
 
-    DbCharmer.with_remapped_databases(:master => :slave01) do
-      Category.respond_to?(:connection_with_magic).should be_true
+    DbCharmer.with_remapped_databases(master: :slave01) do
+      expect(Category.respond_to?(:connection_with_magic)).to be(true)
       should_have_connection(Category, slave_connection)
     end
   end

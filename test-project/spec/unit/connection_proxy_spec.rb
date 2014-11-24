@@ -1,20 +1,21 @@
-require 'spec_helper'
+RSpec.describe DbCharmer::ConnectionProxy do
+  class ProxyTest
+    def self.retrieve_connection(*args); raise 'Not implemented'; end
+  end
 
-describe DbCharmer::ConnectionProxy do
-  before(:each) do
-    class ProxyTest; end
-    @conn = mock('connection')
+  before :each do
+    @conn = double('connection')
     @proxy = DbCharmer::ConnectionProxy.new(ProxyTest, :foo)
   end
 
   it "should retrieve connection from an underlying class" do
-    ProxyTest.should_receive(:retrieve_connection).and_return(@conn)
+    expect(ProxyTest).to receive(:retrieve_connection).and_return(@conn)
     @proxy.inspect
   end
 
   it "should be a blankslate for the connection" do
-    ProxyTest.stub!(:retrieve_connection).and_return(@conn)
-    @proxy.should be(@conn)
+    allow(ProxyTest).to receive(:retrieve_connection).and_return(@conn)
+    expect(@proxy).to be(@conn)
   end
 
   it "should proxy methods with a block parameter" do
@@ -24,14 +25,14 @@ describe DbCharmer::ConnectionProxy do
         yield
       end
     end
-    ProxyTest.stub!(:retrieve_connection).and_return(MockConnection)
+    allow(ProxyTest).to receive(:retrieve_connection).and_return(MockConnection)
     res = @proxy.foo { :foo }
-    res.should == :foo
+    expect(res).to eq(:foo)
   end
 
   it "should proxy all calls to the underlying class connections" do
-    ProxyTest.stub!(:retrieve_connection).and_return(@conn)
-    @conn.should_receive(:foo)
+    allow(ProxyTest).to receive(:retrieve_connection).and_return(@conn)
+    expect(@conn).to receive(:foo)
     @proxy.foo
   end
 end

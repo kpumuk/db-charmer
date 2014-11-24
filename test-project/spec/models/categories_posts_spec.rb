@@ -1,10 +1,8 @@
-require 'spec_helper'
-
-describe CategoriesPosts do
-  before(:each) do
+RSpec.describe CategoriesPosts do
+  before :each do
     @valid_attributes = {
-      :post_id => 1,
-      :category_id => 1
+      post_id:     1,
+      category_id: 1,
     }
   end
 

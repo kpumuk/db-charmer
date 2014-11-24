@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 class SpecMigration < ActiveRecord::Migration
   def self.up
     execute "UPDATE log_records SET level = 'debug'"
@@ -11,7 +9,7 @@ class SpecMigration < ActiveRecord::Migration
 end
 
 class SpecMultiDbMigration < ActiveRecord::Migration
-  db_magic :connection => :logs
+  db_magic connection: :logs
 
   def self.up
     execute "UPDATE log_records SET level = 'debug'"
@@ -35,7 +33,7 @@ class SpecMultiDbMigration2 < ActiveRecord::Migration
 end
 
 class SpecMultiDbMigration3 < ActiveRecord::Migration
-  db_magic :connection => [:logs, :default]
+  db_magic connection: [:logs, :default]
 
   def self.up
     execute "UPDATE log_records SET level = 'hoho'"
@@ -47,7 +45,7 @@ class SpecMultiDbMigration3 < ActiveRecord::Migration
 end
 
 class SpecMultiDbMigration4 < ActiveRecord::Migration
-  db_magic :connections => [:logs, :default]
+  db_magic connections: [:logs, :default]
 
   def self.up
     execute "UPDATE log_records SET level = 'hoho'"
@@ -59,7 +57,7 @@ class SpecMultiDbMigration4 < ActiveRecord::Migration
 end
 
 class SpecMultiDbMigration5 < ActiveRecord::Migration
-  db_magic :connections => [:logs, :default]
+  db_magic connections: [:logs, :default]
 
   def up
     execute "UPDATE log_records SET level = 'hoho'"
@@ -80,8 +78,8 @@ class SpecMultiDbMigration6 < ActiveRecord::Migration
   end
 end
 
-describe "Multi-db migractions" do
-  before(:all) do
+RSpec.describe "Multi-db migractions" do
+  before :all do
     DbCharmer.connections_should_exist = true
   end
 
@@ -95,117 +93,117 @@ describe "Multi-db migractions" do
 
   describe "w/o any magic calls" do
     it "should send all up requests to the default connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'debug'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'debug'")
       SpecMigration.migrate(:up)
     end
 
     it "should send all down requests to the default connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'blah'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'blah'")
       SpecMigration.migrate(:down)
     end
 
     describe "after AR::Migration db_magic call" do
       it "should use default migration config" do
-        ActiveRecord::Migration.db_magic :connection => :logs
-        ActiveRecord::Base.connection.should_not_receive(:execute)
-        connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'debug'")
+        ActiveRecord::Migration.db_magic connection: :logs
+        expect(ActiveRecord::Base.connection).to_not receive(:execute)
+        expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'debug'")
         SpecMigration.migrate(:up)
-        ActiveRecord::Migration.db_magic :connection => :default
+        ActiveRecord::Migration.db_magic connection: :default
       end
     end
   end
 
   describe "with db_magic calls" do
     it "should send all up requests to specified connection" do
-      ActiveRecord::Base.connection.should_not_receive(:execute)
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'debug'")
+      expect(ActiveRecord::Base.connection).to_not receive(:execute)
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'debug'")
       SpecMultiDbMigration.migrate(:up)
     end
 
     it "should send all down requests to specified connection" do
-      ActiveRecord::Base.connection.should_not_receive(:execute)
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'blah'")
+      expect(ActiveRecord::Base.connection).to_not receive(:execute)
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'blah'")
       SpecMultiDbMigration.migrate(:down)
     end
 
     describe "after AR::Migration db_magic call" do
       it "should use specified connection and ignore global migration config" do
-        ActiveRecord::Migration.db_magic :connection => :slave01
-        ActiveRecord::Base.connection.should_not_receive(:execute)
-        connection_with_name(:slave01).should_not_receive(:execute)
-        connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'debug'")
+        ActiveRecord::Migration.db_magic connection: :slave01
+        expect(ActiveRecord::Base.connection).to_not receive(:execute)
+        expect(connection_with_name(:slave01)).to_not receive(:execute)
+        expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'debug'")
         SpecMultiDbMigration.migrate(:up)
-        ActiveRecord::Migration.db_magic :connection => :default
+        ActiveRecord::Migration.db_magic connection: :default
       end
     end
   end
 
   describe "with on_db blocks" do
     it "should send specified up requests to specified connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'yo'")
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'debug'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'yo'")
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'debug'")
       SpecMultiDbMigration2.migrate(:up)
     end
 
     it "should send secified down requests to specified connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'bar'")
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'blah'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'bar'")
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'blah'")
       SpecMultiDbMigration2.migrate(:down)
     end
   end
 
   describe "with db_magic calls" do
     it "should send all up requests to specified connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'hoho'")
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'hoho'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'hoho'")
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'hoho'")
       SpecMultiDbMigration3.migrate(:up)
     end
 
     it "should send all down requests to specified connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'blah'")
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'blah'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'blah'")
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'blah'")
       SpecMultiDbMigration3.migrate(:down)
     end
   end
 
   describe "with db_magic calls" do
     it "should send all up requests to specified connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'hoho'")
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'hoho'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'hoho'")
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'hoho'")
       SpecMultiDbMigration4.migrate(:up)
     end
 
     it "should send all down requests to specified connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'blah'")
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'blah'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'blah'")
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'blah'")
       SpecMultiDbMigration4.migrate(:down)
     end
   end
 
   describe 'with db_magic calls in instance methods' do
     it "should send all up requests to specified connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'hoho'")
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'hoho'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'hoho'")
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'hoho'")
       SpecMultiDbMigration5.migrate(:up)
     end
 
     it "should send all down requests to specified connection" do
-      ActiveRecord::Base.connection.should_receive(:execute).with("UPDATE log_records SET level = 'blah'")
-      connection_with_name(:logs).should_receive(:execute).with("UPDATE log_records SET level = 'blah'")
+      expect(ActiveRecord::Base.connection).to receive(:execute).with("UPDATE log_records SET level = 'blah'")
+      expect(connection_with_name(:logs)).to receive(:execute).with("UPDATE log_records SET level = 'blah'")
       SpecMultiDbMigration5.migrate(:down)
     end
   end
 
   describe 'with db_magic calls in recorder' do
     it "should send all up requests to specified connection" do
-      ActiveRecord::Base.connection.should_not_receive(:execute)
-      connection_with_name(:logs).should_receive(:execute).with(/CREATE TABLE/)
+      expect(ActiveRecord::Base.connection).to_not receive(:execute)
+      expect(connection_with_name(:logs)).to receive(:execute).with(/CREATE TABLE/)
       SpecMultiDbMigration6.migrate(:up)
     end
 
     it "should send all down requests to specified connection" do
-      ActiveRecord::Base.connection.should_not_receive(:execute)
-      connection_with_name(:logs).should_receive(:execute).with(/DROP TABLE/)
+      expect(ActiveRecord::Base.connection).to_not receive(:execute)
+      expect(connection_with_name(:logs)).to receive(:execute).with(/DROP TABLE/)
       SpecMultiDbMigration6.migrate(:down)
     end
   end

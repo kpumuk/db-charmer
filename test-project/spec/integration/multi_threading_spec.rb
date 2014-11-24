@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe "DbCharmer integration tests" do
+RSpec.describe "DbCharmer integration tests" do
   def do_test(test_seconds, thread_count)
     start_time = Time.now.to_f
     threads = Array.new
@@ -8,7 +6,7 @@ describe "DbCharmer integration tests" do
     while threads.size < thread_count
       threads <<  Thread.new do
         while Time.now.to_f - start_time < test_seconds do
-          User.create!(:login => "user#{rand}", :password => rand)
+          User.create!(login: "user#{rand}", password: rand)
           User.uncached { User.on_db(:slave01).first }
         end
       end
@@ -30,27 +28,27 @@ describe "DbCharmer integration tests" do
     # Define a class with db magic in it
     class TestLogRecordWithThreads < ActiveRecord::Base
       self.table_name = :log_records
-      db_magic :connection => :logs
+      db_magic connection: :logs
     end
 
     # Check conection in the same thread
-    TestLogRecordWithThreads.connection.db_charmer_connection_name.should == "logs"
+    expect(TestLogRecordWithThreads.connection.db_charmer_connection_name).to eq("logs")
 
     # Check connection in a different thread
     Thread.new {
-      TestLogRecordWithThreads.connection.db_charmer_connection_name.should == "logs"
+      expect(TestLogRecordWithThreads.connection.db_charmer_connection_name).to eq("logs")
     }.join
   end
 
   it "should use default connection passed in db_magic call when master connection is being remapped" do
     class TestLogRecordWithThreadsAndRemapping < ActiveRecord::Base
       self.table_name = :log_records
-      db_magic :connection => :logs
+      db_magic connection: :logs
     end
 
     # Test in main thread
     expect {
-      DbCharmer.with_remapped_databases(:master => :slave01) do
+      DbCharmer.with_remapped_databases(master: :slave01) do
         TestLogRecordWithThreadsAndRemapping.first
       end
     }.to_not raise_error
@@ -58,7 +56,7 @@ describe "DbCharmer integration tests" do
     # Test in another thread
     Thread.new {
       expect {
-        DbCharmer.with_remapped_databases(:master => :slave01) do
+        DbCharmer.with_remapped_databases(master: :slave01) do
           TestLogRecordWithThreadsAndRemapping.first
         end
       }.to_not raise_error

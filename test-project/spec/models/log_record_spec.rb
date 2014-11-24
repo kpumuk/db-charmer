@@ -1,10 +1,8 @@
-require 'spec_helper'
-
-describe LogRecord do
-  before(:each) do
+RSpec.describe LogRecord do
+  before :each do
     @valid_attributes = {
-      :level => "value for level",
-      :message => "value for message"
+      level:   "value for level",
+      message: "value for message",
     }
   end
 

@@ -1,10 +1,8 @@
-require 'spec_helper'
-
-describe Avatar do
-  before(:each) do
+RSpec.describe Avatar do
+  before :each do
     @valid_attributes = {
-      :user_id => 1,
-      :name => "value for name"
+      user_id: 1,
+      name:    "value for name",
     }
   end
 

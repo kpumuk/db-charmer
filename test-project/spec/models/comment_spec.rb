@@ -1,12 +1,10 @@
-require 'spec_helper'
-
-describe Comment do
+RSpec.describe Comment do
   fixtures :comments, :avatars, :posts, :users
 
   describe "preload polymorphic association" do
     subject do
       lambda {
-        Comment.find(:all, :include => :commentable)
+        Comment.includes(:commentable).all
       }
     end
 

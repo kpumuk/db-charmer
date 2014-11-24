@@ -1,10 +1,8 @@
-require 'spec_helper'
-
-describe Post do
-  before(:each) do
+RSpec.describe Post do
+  before :each do
     @valid_attributes = {
-      :title => "value for title",
-      :body => "value for body"
+      title: "value for title",
+      body:  "value for body",
     }
   end
 

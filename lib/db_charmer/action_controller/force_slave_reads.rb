@@ -50,7 +50,7 @@ module DbCharmer
         end
 
         def force_slave_reads?
-          @db_charmer_force_slave_reads || self.class.force_slave_reads_action?(params[:action])
+          (defined?(@db_charmer_force_slave_reads) && @db_charmer_force_slave_reads) || self.class.force_slave_reads_action?(params[:action])
         end
 
       protected

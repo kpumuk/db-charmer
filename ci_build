@@ -39,4 +39,4 @@ bundle install
 bundle exec rake --trace db:migrate
 
 # Run the build and return its exit code
-exec bundle exec rspec -cbfs spec
+exec bundle exec rspec spec

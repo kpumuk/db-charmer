@@ -1,9 +1,7 @@
-require 'spec_helper'
-
-describe Category do
-  before(:each) do
+RSpec.describe Category do
+  before :each do
     @valid_attributes = {
-      :name => "value for name"
+      name: "value for name",
     }
   end
 

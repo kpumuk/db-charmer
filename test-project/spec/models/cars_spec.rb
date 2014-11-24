@@ -1,9 +1,7 @@
-require 'spec_helper'
-
-describe Ford, "STI model" do
-  before(:each) do
+RSpec.describe Ford, "STI model" do
+  before :each do
     @valid_attributes = {
-      :license => "FFGH-9134"
+      license: "FFGH-9134",
     }
   end
 
@@ -12,14 +10,14 @@ describe Ford, "STI model" do
   end
 
   it "should properly handle slave find calls" do
-    Ford.first.should be_valid
+    expect(Ford.first).to be_valid
   end
 end
 
-describe Toyota, "STI model" do
-  before(:each) do
+RSpec.describe Toyota, "STI model" do
+  before :each do
     @valid_attributes = {
-      :license => "TFGH-9134"
+      license: "TFGH-9134"
     }
   end
 
@@ -28,6 +26,6 @@ describe Toyota, "STI model" do
   end
 
   it "should properly handle slave find calls" do
-    Toyota.first.should be_valid
+    expect(Toyota.first).to be_valid
   end
 end
