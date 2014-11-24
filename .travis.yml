@@ -3,6 +3,7 @@ rvm:
   - 1.8.7
   - 1.9.3
   - 2.0.0
+  - 2.1.5
 
 env:
   - RAILS_VERSION=2.x
@@ -14,15 +15,15 @@ env:
 
 notifications:
   recipients:
-    - alexey@kovyrin.net
+    - kpumuk@kpumuk.info
 
 script: ./ci_build
 
 # Whitelist branches to test
-branches:
-  only:
-    - master
-    - rails4
+# branches:
+#   only:
+#     - master
+#     - rails4
 
 # Build matrix configuration
 matrix:
