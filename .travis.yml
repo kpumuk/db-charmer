@@ -20,10 +20,10 @@ notifications:
 script: ./ci_build
 
 # Whitelist branches to test
-branches:
-  only:
-    - master
-    - rails4
+# branches:
+#   only:
+#     - master
+#     - rails4
 
 # Build matrix configuration
 matrix:
