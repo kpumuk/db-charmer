@@ -4,7 +4,7 @@ module DbCharmer
       module ConnectionRouting
 
         # All the methods that could be querying the database
-        SLAVE_METHODS = [ :calculate, :exists? ]
+        SLAVE_METHODS = [ :calculate, :exists?, :pluck ]
         MASTER_METHODS = [ :delete, :delete_all, :destroy, :destroy_all, :reload, :update, :update_all ]
         ALL_METHODS = SLAVE_METHODS + MASTER_METHODS
 

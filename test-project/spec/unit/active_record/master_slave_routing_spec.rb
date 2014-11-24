@@ -102,7 +102,7 @@ describe "ActiveRecord slave-enabled models" do
 
     it "should go to the slave if called on the first level connection" do
       User.on_slave.connection.should_receive(:exec_query).and_return(@mysql_result)
-      User.pluck(:id)#.should == [1, 2]
+      User.pluck(:id).should == [1, 2]
     end
 
     it "should not change connection if called in an on_db block" do
