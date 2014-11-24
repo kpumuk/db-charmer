@@ -5,6 +5,6 @@ class Post < ActiveRecord::Base
   belongs_to :user
   has_and_belongs_to_many :categories
 
-  scope :windows_posts, :conditions => "title like '%win%'"
-  scope :dummy_scope, :conditions => '1'
+  scope :windows_posts, -> { where("title like '%win%'") }
+  scope :dummy_scope, -> { where('1 = 1') }
 end
