@@ -61,7 +61,7 @@ RSpec.describe DbCharmer, "AR connection switching" do
 
     it "should support connection switching for AR::Base" do
       ActiveRecord::Base.switch_connection_to(:logs)
-      ActiveRecord::Base.connection.object_id == DbCharmer::ConnectionFactory.connect('logs').object_id
+      expect(ActiveRecord::Base.connection.object_id).to eq(DbCharmer::ConnectionFactory.connect('logs').object_id)
       ActiveRecord::Base.switch_connection_to(nil)
     end
   end

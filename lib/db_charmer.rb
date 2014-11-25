@@ -1,5 +1,3 @@
-# In Rails 2.2 they did not add it to the autoload so it won't work w/o this require
-require 'active_record/version' unless defined?(::ActiveRecord::VERSION::MAJOR)
 require 'active_support/core_ext'
 
 #---------------------------------------------------------------------------------------------------
@@ -14,7 +12,7 @@ module DbCharmer
   #-------------------------------------------------------------------------------------------------
   # Used in all Rails3-specific places
   def self.rails3?
-    ::ActiveRecord::VERSION::MAJOR > 2
+    ::ActiveRecord::VERSION::MAJOR == 3
   end
 
   #-------------------------------------------------------------------------------------------------

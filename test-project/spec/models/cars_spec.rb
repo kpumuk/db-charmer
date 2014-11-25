@@ -10,7 +10,8 @@ RSpec.describe Ford, "STI model" do
   end
 
   it "should properly handle slave find calls" do
-    expect(Ford.first).to be_valid
+    Ford.create!(@valid_attributes)
+    expect(Ford.last).to be_valid
   end
 end
 
@@ -26,6 +27,7 @@ RSpec.describe Toyota, "STI model" do
   end
 
   it "should properly handle slave find calls" do
-    expect(Toyota.first).to be_valid
+    Toyota.create!(@valid_attributes)
+    expect(Toyota.last).to be_valid
   end
 end

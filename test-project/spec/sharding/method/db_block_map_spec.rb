@@ -102,6 +102,7 @@ RSpec.describe DbCharmer::Sharding::Method::DbBlockMap do
   end
 
   it "should cache shards info" do
+    @sharder.prepare_shard_model
     shard = DbCharmer::Sharding::Method::DbBlockMap::ShardInfo.first
     expect(DbCharmer::Sharding::Method::DbBlockMap::ShardInfo).to receive(:find_by_id).once.and_return(shard)
     @sharder.shard_info_by_id(1)
@@ -109,6 +110,7 @@ RSpec.describe DbCharmer::Sharding::Method::DbBlockMap do
   end
 
   it "should not cache shards info when explicitly asked not to" do
+    @sharder.prepare_shard_model
     shard = DbCharmer::Sharding::Method::DbBlockMap::ShardInfo.first
     expect(DbCharmer::Sharding::Method::DbBlockMap::ShardInfo).to receive(:find_by_id).twice.and_return(shard)
     @sharder.shard_info_by_id(1, false)
